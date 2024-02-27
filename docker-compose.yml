@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  web:
+    image: ngser/mmgg-payments:latest
+    container_name: mmgg-payments
+    build: .
+    depends_on:  
+      - mmgg-payments-database
+      - mmgg-payments-redis
+    ports:
+      - "7581:3000"
+    volumes:
+      - .:/home/ngser/app
+    env_file:
+      - .env
+    environment:
+      - DB_USERNAME=$POSTGRES_USER
+      - DB_PASSWORD=$POSTGRES_PASSWORD
+  mmgg-payments-database:
+    image: postgres:13.2-alpine
+    restart: always
+    ports: 
+      - "5432"
+    volumes:
+      - "${DB_DATA_MMGG_PAYMENTS}:/var/lib/postgresql/data"
+    environment:
+      # Setting postgresql credentials
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB=mmgg_payments_dev
+  mmgg-payments-redis:
+    image: redis:6.2.1-alpine
+    restart: always
